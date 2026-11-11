@@ -1,21 +1,21 @@
 
 services:
-  website:
+  frontend:
     build:
       context: .
       target: frontend
       args:
         VITE_API_URL: https://nts.lalacodes.tech
         VITE_VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
-    container_name: website
+    container_name: notetoself-frontend
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.website.rule=Host(`nts.lalacodes.tech`)"
-      - "traefik.http.routers.website.entrypoints=websecure"
-      - "traefik.http.routers.website.tls.certresolver=myresolver"
-      - "traefik.http.routers.website.priority=10"
-      - "traefik.http.services.website.loadbalancer.server.port=80"
+      - "traefik.http.routers.notetoself-frontend.rule=Host(`nts.lalacodes.tech`)"
+      - "traefik.http.routers.notetoself-frontend.entrypoints=websecure"
+      - "traefik.http.routers.notetoself-frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.notetoself-frontend.priority=10"
+      - "traefik.http.services.notetoself-frontend.loadbalancer.server.port=80"
       - "traefik.docker.network=proxy"
     networks:
       - app
@@ -36,11 +36,11 @@ services:
         condition: service_healthy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.website-api.rule=Host(`nts.lalacodes.tech`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.website-api.entrypoints=websecure"
-      - "traefik.http.routers.website-api.tls.certresolver=myresolver"
-      - "traefik.http.routers.website-api.priority=100"
-      - "traefik.http.services.website-api.loadbalancer.server.port=5000"
+      - "traefik.http.routers.notetoself-api.rule=Host(`nts.lalacodes.tech`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.notetoself-api.entrypoints=websecure"
+      - "traefik.http.routers.notetoself-api.tls.certresolver=myresolver"
+      - "traefik.http.routers.notetoself-api.priority=100"
+      - "traefik.http.services.notetoself-api.loadbalancer.server.port=5000"
       - "traefik.docker.network=proxy"
     networks:
       - app

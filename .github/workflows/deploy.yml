@@ -52,14 +52,16 @@ jobs:
             printf '%s' "$CLIENT_ENV" > client/.env.tmp
             mv client/.env.tmp client/.env
 
-
+            VITE_VAPID_PUBLIC_KEY=$(sed -n 's/^VITE_VAPID_PUBLIC_KEY=//p' client/.env)
+            
             # Write root .env for docker-compose interpolation
             cat <<EOF > .env.tmp
             MONGO_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
             MONGO_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+            VITE_VAPID_PUBLIC_KEY=${VITE_VAPID_PUBLIC_KEY}
             EOF
             mv .env.tmp .env
 
             # Rebuild and restart containers
-            docker compose down
-            docker compose up -d --build
+            docker compose build --no-cache frontend
+            docker compose up -d --force-recreate

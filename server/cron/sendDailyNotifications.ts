@@ -14,7 +14,7 @@ export async function buildDailyPayload(): Promise<NotificationPayload> {
     };
   }
 
-  const [quote] = await Quote.aggregate<Array<{ text: string; author?: string }>>([
+  const [quote] = await Quote.aggregate<{ text: string; author?: string }>([
     { $sample: { size: 1 } }
   ]);
 

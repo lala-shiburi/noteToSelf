@@ -1,3 +1,4 @@
+
 services:
   website:
     build:
@@ -24,11 +25,15 @@ services:
     build:
       context: .
       target: api
+    container_name: notetoself-api
     restart: unless-stopped
     env_file:
-      - .env
+      - server/.env
     expose:
       - "5000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.website-api.rule=Host(`nts.lalacodes.tech`) && PathPrefix(`/api`)"
@@ -40,9 +45,37 @@ services:
     networks:
       - app
       - proxy
+      - database
+
+  mongodb:
+    image: mongo:8.0
+    container_name: notetoself-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - database
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'mongosh --quiet --username "$$MONGO_INITDB_ROOT_USERNAME" --password "$$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "db.adminCommand(''ping'').ok"'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 networks:
   app:
     driver: bridge
+
   proxy:
     external: true
+
+  database:
+    internal: true
+
+volumes:
+  mongodb_data:

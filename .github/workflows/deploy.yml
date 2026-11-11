@@ -1,3 +1,4 @@
+
 name: Deploy to VPS
 
 on:
@@ -8,18 +9,45 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
+        env:
+          SERVER_ENV: ${{ secrets.SERVER_ENV }}
+          CLIENT_ENV: ${{ secrets.CLIENT_ENV }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+
+          envs: SERVER_ENV,CLIENT_ENV
+
           script: |
+            set -eu
+
             cd ~/noteToSelf
+
             git pull origin main
+
+            # Restrict permissions on environment files
+            umask 077
+
+            # Validate environment variables
+            : "${SERVER_ENV:?SERVER_ENV is missing}"
+            : "${CLIENT_ENV:?CLIENT_ENV is missing}"
+
+            # Write server environment
+            printf '%s' "$SERVER_ENV" > server/.env.tmp
+            mv server/.env.tmp server/.env
+
+            # Write client environment
+            printf '%s' "$CLIENT_ENV" > client/.env.tmp
+            mv client/.env.tmp client/.env
+
+            # Rebuild and restart containers
             docker compose down
             docker compose up -d --build

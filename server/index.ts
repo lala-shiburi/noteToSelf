@@ -8,7 +8,7 @@ import { scheduleDailyNotifications } from './cron/sendDailyNotifications.js';
 dotenv.config();
 
 const app = express();
-const port = Number(process.env.PORT) || 5000;
+const port = Number(process.env.PORT) || 5001;
 const allowedOrigins = new Set(
   [
     process.env.CLIENT_URL,

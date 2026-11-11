@@ -14,6 +14,8 @@
     "seed": "npm --workspace server run seed"
   },
   "devDependencies": {
+    "@types/node-cron": "^3.0.11",
+    "@types/web-push": "^3.6.4",
     "concurrently": "^10.0.7"
   }
 }
